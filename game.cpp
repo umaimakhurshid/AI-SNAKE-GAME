@@ -7,6 +7,8 @@
 #include <unordered_set>
 #include <raymath.h>
 #include <cfloat>
+#include <string>
+#include <fstream>
 using namespace std;
 
 const int cellsize = 30;
@@ -24,7 +26,24 @@ bool aiMode = false;
 int growthFoodCount = 0;
 int shrinkFoodCount = 0;
 int negativeFoodCount = 0;
+int highScore = 0;
 
+int loadHighScore(const string& filename){
+    ifstream file(filename);
+    int score = 0;
+    if(file.is_open()){
+        file>>score;
+        file.close();
+    }
+    return score;
+}
+void saveHighScore(const string& filename, int score){
+    ofstream file(filename);
+    if(file.is_open()){
+        file<<score;
+        file.close();
+    }
+}
 bool ElementInDeque(Vector2 val, const deque<Vector2> &dq)
 {
     for (const auto &el : dq)
@@ -315,6 +334,10 @@ public:
         if (head.x < 0 || head.y < 0 || head.x >= numberofcells || head.y >= numberofcells ||
             ElementInDeque(head, deque<Vector2>(snake.body.begin() + 1, snake.body.end())))
         {
+            if(score > highScore){
+                highScore = score;
+                saveHighScore("highscore.txt", highScore);
+            }
             running = false;
             gameOverScreen = true;
             PlaySound(hit);
@@ -340,6 +363,7 @@ int main()
 {
     InitWindow(2 * offset + cellsize * numberofcells, 2 * offset + cellsize * numberofcells, "Snake AI Game");
     SetTargetFPS(60);
+    highScore = loadHighScore("highscore.txt");
     Game game;
 
     while (!WindowShouldClose())
@@ -363,9 +387,12 @@ int main()
         {
             DrawText("Game Over!", (GetScreenWidth() - MeasureText("Game Over!", 40)) / 2, offset + 100, 40, RED);
             DrawText(TextFormat("Total Score: %i", game.score),
-                     (GetScreenWidth() - MeasureText(TextFormat("Total Score: %i", game.score), 25)) / 2, offset + 150, 25, DARKGRAY);
+            (GetScreenWidth() - MeasureText(TextFormat("Total Score: %i", game.score), 25)) / 2, offset + 150, 25, DARKGRAY);
+            DrawText(TextFormat("High Score: %i", highScore),
+            (GetScreenWidth() - MeasureText(TextFormat("High Score: %i", highScore), 25)) / 2,
+            offset + 180, 25, DARKGREEN);
             DrawText("Press R to Restart or ESC to Exit",
-                     (GetScreenWidth() - MeasureText("Press R to Restart or ESC to Exit", 25)) / 2, offset + 200, 25, DARKGRAY);
+            (GetScreenWidth() - MeasureText("Press R to Restart or ESC to Exit", 25)) / 2, offset + 230, 25, DARKGRAY);
             if (IsKeyPressed(KEY_R))
                 game.Restart();
         }
