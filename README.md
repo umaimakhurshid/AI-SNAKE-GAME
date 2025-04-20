@@ -1,0 +1,1 @@
+A C++ Snake game using Raylib with A* pathfinding AI, multiple food types (growth, shrink, negative), sound effects, and UI screens. Built with modular classes and clean visuals. Includes both manual and AI gameplay modes. Developed by a team with individual contributions to AI, food, and game logic.
